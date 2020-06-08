@@ -4,7 +4,7 @@
 close all; clear; clc;
 
 %flags
-ANIMATE = true;
+ANIMATE = false;
 SIMULATION = 2; % 1 or 2
 SAVE_PLOTS = false;
 
@@ -53,7 +53,7 @@ Dy_ = Dy + t_*D2y;
 %% rotation matices 
 % euler-rodrigues formula
 S_BG = eye(3) - 2*q0*tilde(q) + 2*tilde(q)*tilde(q);
-S_GB = eye(3) + 2*q0*tilde(q) + 2*tilde(q)*tilde(q);
+S_GB = eye(3) + 2*q0*tilde(q) + 2*tilde(q)*tilde(q); %S_GB = S_BG'
 
 %% moment of inertia
 thet = m*(R^2+(R-th)^2);
@@ -158,7 +158,8 @@ if SIMULATION == 1
     xlabel('t in sec','FontSize', 12); 
     ylabel('y_G','FontSize', 12); 
     title('y-position COM in ground frame','FontSize', 14);
-    plot(t_span,r_G(2,:)','LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]); 
+    plot(t_span,r_G(2,:)','LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]);
+    set(gca,'ydir','reverse');
     
     subplot 313; hold on; grid on; 
     xlabel('t in sec','FontSize', 12); 
@@ -228,6 +229,7 @@ elseif SIMULATION == 2
     ylabel('y_G','FontSize', 12); 
     title('y-position COM in ground frame','FontSize', 14);
     plot(t_span,r_G(2,:)','LineWidth',1.5,'Color',[0.8500, 0.3250, 0.0980]); 
+    set(gca,'ydir','reverse');
     
     subplot 313; hold on; grid on; 
     xlabel('t in sec','FontSize', 12); 
@@ -251,7 +253,7 @@ elseif SIMULATION == 2
 end
 
 %% save figures
-fig_folder = 'figur1es/';
+fig_folder = 'figures/';
 try
     if SAVE_PLOTS == true
         for ii = 1:N_fig
