@@ -1,7 +1,10 @@
-function [y, Dy, c, Dc] = subtask_e1(cs)
+function [y, Dy, c, Dc, task_info] = subtask_e1(cs)
 % simulation of crankshaft via manual partitioning of Constraint matrix and 
 % analytical solution of beta
-
+    
+    %% Task information
+    task_info.name = "subtask e1";
+    %%
     N = length(cs.sym.tspan);
     
     % pre-allocate vectors
@@ -35,7 +38,7 @@ function [y, Dy, c, Dc] = subtask_e1(cs)
     Ca_ = matlabFunction(Ca,'vars',{[cs.dyn.yb]});
     
     qc = length(ya);
-    %% define ODE for integration
+    %% define projections and projected matrices
     % define J and gamma
     J = [eye(1); -Ca\Cu];
     gamma = [0; -Ca\cs.dyn.ctt];
@@ -44,16 +47,17 @@ function [y, Dy, c, Dc] = subtask_e1(cs)
     k_hat = J'*(cs.dyn.Mb*gamma + cs.dyn.kb);
     q_hat = J'*cs.dyn.qb;
     
-    % ODE projected in valid movement space
+    %% ODE projected in valid movement space
     DDyu = matlabFunction(M_hat\(q_hat-k_hat),'vars',{[yu;ya;Dyu;Dya]});
     
     % x = [yu;Dyu]
     f = @(x,ya) [x(2); DDyu([x(1);ya(1);x(2);ya(2)])];
     
-    %% solver options
-    options = odeset('RelTol',1e-10,'AbsTol',1e-10);
     
-    %% iteration process
+    
+    
+    %% iteration process - numerical solution of ODE
+
     for ii = 1:N
         %% apply boundary conditions -> solve for dependent coordinates
         y(ii,2) = asin(sin(y(ii,1))*cs.params.l1/cs.params.l2);
@@ -64,8 +68,7 @@ function [y, Dy, c, Dc] = subtask_e1(cs)
         end
         %% solve ODE
         if (ii+1 <= N)
-%             [t,x] = BDFk(1,f,cs.sym.tspan(ii:ii+1),[y(ii,:), Dy(ii,:)]);
-            [t,x] = ode45(@(t,x) f(x,[y(ii,2);Dy(ii,2)]),cs.sym.tspan(ii:ii+1),[y(ii,1); Dy(ii,1)],options);
+            [~,x] = ode45(@(t,x) f(x,[y(ii,2);Dy(ii,2)]),cs.sym.tspan(ii:ii+1),[y(ii,1); Dy(ii,1)]);
 
             y(ii+1,1) = x(end,1);
             Dy(ii+1,1) = x(end,2);

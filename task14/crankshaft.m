@@ -11,9 +11,9 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
     g = 9.81;           % m/s^2
     
     % initial conditions
-    alpha0 = .1;   %rad
-    Dalpha0 = .1;  %rad/s
-    tspan = 0:0.01:4;
+    alpha0 = 0.1;   %rad
+    Dalpha0 = 0.1;  %rad/s
+    tspan = 0:0.02:4;
       
     %% system parameters 
         crankshaft.params.m1 = m1;

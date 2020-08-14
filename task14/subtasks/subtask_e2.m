@@ -1,4 +1,9 @@
-function [y, Dy, c, Dc] = subtask_e2(cs)
+function [y, Dy, c, Dc, task_info] = subtask_e2(cs)
+%%  subtask e2: simulation via manual coordinate partitioning by integration
+    
+    %% Task information
+    task_info.name = "subtask e2";
+    %%
     N = length(cs.sym.tspan);
     
     % pre-allocate vectors
@@ -9,7 +14,7 @@ function [y, Dy, c, Dc] = subtask_e2(cs)
     % fill in independent initial conditions
     y(1,:) = [cs.sym.alpha0;cs.sym.beta0];
     Dy(1,:) = [cs.sym.Dalpha0;cs.sym.Dbeta0];
-       
+    
     %%
     % function to evaluate error to contraint
     c_f = matlabFunction(cs.dyn.c,'vars',{[cs.dyn.yb]});
@@ -31,9 +36,8 @@ function [y, Dy, c, Dc] = subtask_e2(cs)
     Cu_ = matlabFunction(Cu,'vars',{[cs.dyn.yb]});
     Ca_ = matlabFunction(Ca,'vars',{[cs.dyn.yb]});
     
-    
-    
-    %% define ODE for integration
+    qc = length(ya);
+    %% define projections and projected matrices
     % define J and gamma
     J = [eye(1); -Ca\Cu];
     gamma = [0; -Ca\cs.dyn.ctt];
@@ -42,21 +46,34 @@ function [y, Dy, c, Dc] = subtask_e2(cs)
     k_hat = J'*(cs.dyn.Mb*gamma + cs.dyn.kb);
     q_hat = J'*cs.dyn.qb;
     
-    % ODE in 
-    DDyu = M_hat\(q_hat-k_hat);
+    %% ODE projected in valid movement space
     
-    DDx = matlabFunction([Dyu;Dya;DDyu;-Ca\Cu*Dyu-Ca\cs.dyn.ctt],'vars',{[yu;ya;Dyu;Dya]});
-    f = @(t,x) DDx(x);    
+    DDyb = matlabFunction([Dyu; 
+                           -(Ca\Cu)*Dyu;     
+                           M_hat\(q_hat-k_hat);0],'vars',{[yu;ya;Dyu;Dya]});
     
-    options = odeset('RelTol',1e-10,'AbsTol',1e-10);
-    [t,x] = ode45(f,cs.sym.tspan,[y(1,:), Dy(1,:)]',options);
+    %% iteration process - numerical solution of ODE
+
+     
+    for ii = 1:N
+        
+        if rank(Ca_(y(ii,:)')) == qc
+            Dy(ii,2) = -Ca_(y(ii,:)')\(Cu_(y(ii,:)'))*Dy(ii,1);
+        else
+            error("dependent partition of constraint matrix is singular");
+        end
+        
+        if ii+1 <= N
+            [~,x] = ode45(@(t,x) DDyb(x),cs.sym.tspan(ii:ii+1),[y(ii,:), Dy(ii,:)]');
+
+            y(ii+1,:) = x(end,1:2);
+            Dy(ii+1,1) = x(end,3);
+
+        end
+        
+        c(ii,1) = c_f(y(ii,:)');
+        Dc(ii,1) = Dc_f([y(ii,:),Dy(ii,:)]');
+    end
     
-    y = x(:,1:2);
-    Dy = x(:,3:4);
-    %% iteration process
-%     for ii = 1:N
-%         
-%         c(ii,1) = c_f(y(ii,:)');
-%         Dc(ii,1) = Dc_f([y(ii,:),Dy(ii,:)]');
-%     end
+
 end
