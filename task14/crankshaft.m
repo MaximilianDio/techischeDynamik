@@ -3,7 +3,7 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
     % variables for convenience
 	% point masses
     m1 = .1;       %kg
-    m2 = 1;       %kg
+    m2 =  1;       %kg
     % rod lengths
     l1 = 0.3;       %m
     l2 = 1;         %m
@@ -13,7 +13,7 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
     % initial conditions
     alpha0 = 0.1;   %rad
     Dalpha0 = 0.1;  %rad/s
-    tspan = 0:0.02:4;
+    tspan = 0:0.01:2;
       
     %% system parameters 
         crankshaft.params.m1 = m1;
@@ -27,6 +27,10 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
     %% kinematics
         crankshaft.kin.r1 = [l1*cos(alpha),l1*sin(alpha)];
         crankshaft.kin.r2 = [l1*cos(alpha)+l2*cos(beta),l1*sin(alpha)-l2*sin(beta)];
+        
+        crankshaft.kin.v1 = [-l1*sin(alpha)*Dalpha,l1*cos(alpha)*Dalpha];
+        crankshaft.kin.v2 = [-l1*sin(alpha)*Dalpha - l2*sin(beta)*Dbeta,...
+                                l1*cos(alpha)*Dalpha-l2*cos(beta)*Dbeta];
         
     %% dynamics        
         % general coordinates in tree structure 
@@ -44,6 +48,7 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
         crankshaft.dyn.qb = [-(m1+m2)*g*l1*cos(alpha);
                                   m2*g*l2*cos(beta)];
         
+	%% boundary conditions
         % kinematic boundary condition (location)
         crankshaft.dyn.c = sin(alpha)*l1-sin(beta)*l2; % =0
         % jacobian matrix of c dc/dy
@@ -52,6 +57,7 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
         % kinematic boundary condition (velocity)
         crankshaft.dyn.Dc = crankshaft.dyn.C*[Dalpha;Dbeta]; % =0
         
+        crankshaft.dyn.ct = 0;
         crankshaft.dyn.ctt = [-sin(alpha)*l1 sin(beta)*l2]*[Dalpha^2;Dbeta^2];
     
     %% simulation parameters
@@ -65,5 +71,29 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
 
         % time span
         crankshaft.sym.tspan = tspan;
+        
+    %% DAE formulation (for subtask i and j)
+        syms x1 y1 x2 y2 real
+        
+        crankshaft.DAE.x = [x1; y1; x2; y2];
+        
+        crankshaft.DAE.x0 = double([subs(crankshaft.kin.r1,{'alpha','beta'},...
+            [crankshaft.sym.alpha0,crankshaft.sym.beta0]),...
+            subs(crankshaft.kin.r2,{'alpha','beta'},...
+            [crankshaft.sym.alpha0,crankshaft.sym.beta0])]);
+        
+        crankshaft.DAE.Dx0 = double([subs(crankshaft.kin.v1,{'alpha','beta','Dalpha','Dbeta'},...
+            [crankshaft.sym.alpha0,crankshaft.sym.beta0,crankshaft.sym.Dalpha0,crankshaft.sym.Dbeta0]),...
+            subs(crankshaft.kin.v2,{'alpha','beta','Dalpha','Dbeta'},...
+            [crankshaft.sym.alpha0,crankshaft.sym.beta0,crankshaft.sym.Dalpha0,crankshaft.sym.Dbeta0])...
+            ]);
+        
+        crankshaft.DAE.M = diag([m1,m1,m2,m2]);
+        crankshaft.DAE.qe = [0;-m1*g;0;-m2*g];
+        
+        crankshaft.DAE.c = [x1^2+y1^2-l1;(x1-x2)^2+(y1-y2)^2-l2;y2];
+        crankshaft.DAE.C = [2*x1        2*y1        0           0;
+                            2*(x1-x2)   2*(y1-y2)   -2*(x1-x2)  -2*(y1-y2);
+                            0           0           0           1];
 
 end

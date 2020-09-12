@@ -16,8 +16,7 @@ function [y, Dy, c, Dc, task_info] = subtask_e1(cs)
     y(1,:) = [cs.sym.alpha0;cs.sym.beta0];
     Dy(1,:) = [cs.sym.Dalpha0;cs.sym.Dbeta0];
     
-    %%
-    % function to evaluate error to contraint
+    %% function handle to evaluate error to contraint
     c_f = matlabFunction(cs.dyn.c,'vars',{[cs.dyn.yb]});
     Dc_f = matlabFunction(cs.dyn.Dc,'vars',{[cs.dyn.yb;cs.dyn.Dyb]});
     
@@ -67,6 +66,7 @@ function [y, Dy, c, Dc, task_info] = subtask_e1(cs)
             error("dependent partition of constraint matrix is singular");
         end
         %% solve ODE
+        % TODO use own solver!
         if (ii+1 <= N)
             [~,x] = ode45(@(t,x) f(x,[y(ii,2);Dy(ii,2)]),cs.sym.tspan(ii:ii+1),[y(ii,1); Dy(ii,1)]);
 

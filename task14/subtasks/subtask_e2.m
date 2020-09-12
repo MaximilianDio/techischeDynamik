@@ -53,10 +53,7 @@ function [y, Dy, c, Dc, task_info] = subtask_e2(cs)
                            M_hat\(q_hat-k_hat);0],'vars',{[yu;ya;Dyu;Dya]});
     
     %% iteration process - numerical solution of ODE
-
-     
     for ii = 1:N
-        
         if rank(Ca_(y(ii,:)')) == qc
             Dy(ii,2) = -Ca_(y(ii,:)')\(Cu_(y(ii,:)'))*Dy(ii,1);
         else

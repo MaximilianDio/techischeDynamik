@@ -8,11 +8,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%
-% clean figures, workspace and cmd window
-close all; clear; clc;
+% clean workspace and cmd window
+clear; clc;
 
 %% FLAGS
-ANIMATE = false;
+ANIMATE = 0; % (0/1) 1: animate, 0: not 
 
 %% PATHS
 % add paths
@@ -33,9 +33,10 @@ cs = crankshaft(alpha,beta,Dalpha,Dbeta);
 
 subtasks = { 
 %             @(cs) subtask_d(cs);
-            @(cs) subtask_e1(cs);
-            @(cs) subtask_e2(cs);
-%             @(cs) subtask_f(cs)
+%             @(cs) subtask_e1(cs);
+%             @(cs) subtask_e2(cs);
+            @(cs) subtask_f(cs);
+%             @(cs) subtask_i(cs);
             };
 
 results = cell(size(subtasks));
@@ -48,4 +49,5 @@ for ii = 1:length(subtasks)
 end
 
 %% visualize results
+close all;
 vis_results(cs,results,'animate',ANIMATE);
