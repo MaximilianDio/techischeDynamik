@@ -37,6 +37,8 @@ function vis_results(cs,results,varargin)
     % angles and angle speeds over time
     figure("Position",[680,325,563,653]); 
     fig_a1 = subplot(2,1,1); hold on; grid on;
+    yticks([-pi -pi/2 0 pi/2 pi])
+    yticklabels({'-\pi','-\pi/2','0','\pi/2','\pi'})
     set(fig_a1,"outerposition",[0 0.65 1 0.35]);
     xlabel("t [s]"); ylabel("angles [rad]"); title("angles");
     fig_a2 = subplot(2,1,2); hold on; grid on;

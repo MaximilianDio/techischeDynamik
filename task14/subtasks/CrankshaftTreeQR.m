@@ -12,7 +12,7 @@ classdef CrankshaftTreeQR < CrankshaftTree
     methods 
         function results = solve(obj,tEnd)
             tic
-            tspan = [0,tEnd];
+            tspan = 0:0.01:tEnd;
             
             %%
             C = matlabFunction(obj.bc.C,'vars',{[obj.y;obj.Dy]});

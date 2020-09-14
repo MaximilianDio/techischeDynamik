@@ -32,8 +32,8 @@ classdef BoundaryCondition
             obj.Dc = subs(Dc_,'t_',0);
             obj.DDc = subs(DDc_,'t_',0);
             
-            obj.ct = obj.Dc - obj.C*Dy;
-            obj.ctt = obj.DDc - obj.C*DDy;
+            obj.ct = simplify(obj.Dc - obj.C*Dy);
+            obj.ctt = simplify(obj.DDc - obj.C*DDy);
             
         end
     end

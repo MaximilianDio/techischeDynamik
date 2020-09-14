@@ -31,15 +31,15 @@ addpath("solver");
 alpha0 = 0.1;
 Dalpha0 = 0.1;
 
-Tend = 50;
+Tend = 10;
 
 crankshafts = { 
             CrankshaftTreeDAE(alpha0,Dalpha0);
             CrankshaftTreeMPAnalytical(alpha0,Dalpha0);
             CrankshaftTreeMPIntegration(alpha0,Dalpha0);
             CrankshaftTreeQR(alpha0,Dalpha0);
-%             CrankshaftRedundantDAE(alpha0,Dalpha0);
-%             CrankshaftRedundantQR(alpha0,Dalpha0);
+            CrankshaftRedundantDAE(alpha0,Dalpha0);
+            CrankshaftRedundantQR(alpha0,Dalpha0);
             };
 
 results = cell(size(crankshafts));

@@ -13,7 +13,7 @@ classdef CrankshaftTreeMPAnalytical < CrankshaftTree
         function results = solve(obj,tEnd)
             tic
             
-            tspan = [0,tEnd];
+            tspan = 0:0.01:tEnd;
             
             % independent variable (alpha)
             yid = obj.y(1);

@@ -13,8 +13,8 @@ classdef CrankshaftClass
         g = 9.81;       % m/s^2
     
         % simulation
-        relTol = 1e-7;
-        absTol = 1e-7;
+        relTol = 1e-5;
+        absTol = 1e-5;
         
         % initial conditions
         alpha0;         %rad

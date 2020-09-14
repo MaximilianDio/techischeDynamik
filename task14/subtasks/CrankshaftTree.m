@@ -55,8 +55,9 @@ classdef CrankshaftTree < CrankshaftClass
                      obj.l1*cos(y(:,1)).*Dy(:,1)-obj.l2*cos(y(:,2)).*Dy(:,2)];
         end
         function [alpha,beta] = angles(obj,y)
-            alpha = y(:,1);
-            beta = y(:,2);
+%             toPi = @(angle) angle - 2*pi*floor( (angle+pi)/(2*pi) );
+            alpha = wrapToPi(y(:,1)+pi/2)-pi/2;
+            beta = wrapToPi(y(:,2)+pi/2)-pi/2;
         end
         
         function [Dalpha,Dbeta] = angleVelocities(obj,Dy)
@@ -91,4 +92,5 @@ classdef CrankshaftTree < CrankshaftClass
         end
     end
 end
+
 

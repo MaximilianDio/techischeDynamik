@@ -2,14 +2,14 @@
 % close all;
 clear; clc;
 
-l1 = 1;
+l1 = .3;
 m1 = .1;
-l2 = 2;
+l2 = 1;
 m2 = 1;
 g = 9.81;
 
 alpha0 = pi/2;
-beta0 = pi/2;
+beta0 = acos(cos(alpha0)*l1/l2);
 
 Dalpha0 = 0;
 Dbeta0 = 0;
