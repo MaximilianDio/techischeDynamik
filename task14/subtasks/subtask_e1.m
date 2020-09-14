@@ -3,7 +3,7 @@ function [y, Dy, c, Dc, task_info] = subtask_e1(cs)
 % analytical solution of beta
     
     %% Task information
-    task_info.name = "subtask e1";
+    task_info.name = "MP - Analytical Solution";
     %%
     N = length(cs.sym.tspan);
     
@@ -52,8 +52,10 @@ function [y, Dy, c, Dc, task_info] = subtask_e1(cs)
     % x = [yu;Dyu]
     f = @(x,ya) [x(2); DDyu([x(1);ya(1);x(2);ya(2)])];
     
-    
-    
+    %% solver options
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8);
+%     method = "embedded";
+%     rel_tol = 1e-5;
     
     %% iteration process - numerical solution of ODE
 
@@ -68,7 +70,9 @@ function [y, Dy, c, Dc, task_info] = subtask_e1(cs)
         %% solve ODE
         % TODO use own solver!
         if (ii+1 <= N)
-            [~,x] = ode45(@(t,x) f(x,[y(ii,2);Dy(ii,2)]),cs.sym.tspan(ii:ii+1),[y(ii,1); Dy(ii,1)]);
+            
+%             [~,x] = explicitRKM(@(t,x) f(x,[y(ii,2);Dy(ii,2)]),cs.sym.tspan(ii:ii+1),[y(ii,1); Dy(ii,1)],"Method",method,"Tol",rel_tol);
+            [~,x] = ode45(@(t,x) f(x,[y(ii,2);Dy(ii,2)]),cs.sym.tspan(ii:ii+1),[y(ii,1); Dy(ii,1)],options);
 
             y(ii+1,1) = x(end,1);
             Dy(ii+1,1) = x(end,2);

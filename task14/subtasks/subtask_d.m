@@ -2,7 +2,7 @@ function [x, Dy, c, Dc, task_info] = subtask_d(cs)
 % simulation as DAE system
 
     %% Task information
-    task_info.name = "subtask d";
+    task_info.name = "DAE desctription";
     
    	%%
     N = length(cs.sym.tspan);
@@ -35,7 +35,7 @@ function [x, Dy, c, Dc, task_info] = subtask_d(cs)
     M = matlabFunction(M,'vars',{t,[cs.dyn.yb;cs.dyn.Dyb;lambda]});
     
     
-    options = odeset('Mass',M,'RelTol',1e-5,'AbsTol',1e-5);
+    options = odeset('Mass',M,'RelTol',1e-10,'AbsTol',1e-10);
     
 
     x0 = [y(1,:),Dy(1,:),lambda0];

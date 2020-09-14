@@ -3,7 +3,7 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
     % variables for convenience
 	% point masses
     m1 = .1;       %kg
-    m2 =  1;       %kg
+    m2 =  1.0;       %kg
     % rod lengths
     l1 = 0.3;       %m
     l2 = 1;         %m
@@ -13,7 +13,7 @@ function crankshaft = crankshaft(alpha,beta,Dalpha,Dbeta)
     % initial conditions
     alpha0 = 0.1;   %rad
     Dalpha0 = 0.1;  %rad/s
-    tspan = 0:0.01:2;
+    tspan = 0:0.005:4;
       
     %% system parameters 
         crankshaft.params.m1 = m1;

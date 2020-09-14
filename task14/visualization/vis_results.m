@@ -1,7 +1,8 @@
 function vis_results(cs,results,varargin)
         %% visualization parameters
-    % color
-    col = ["b","r","g","m","k"];
+    NN = length(results);
+    cmap = colormap(lines(NN)); %colormap
+    lwidth = 0.8;
     % flags
     ANIMATE = false;
     %% evaluate varargin 
@@ -23,32 +24,55 @@ function vis_results(cs,results,varargin)
     
     %%
     % 2D representation of crankshaft movement
-    figure; fig_2D = axes; hold on; grid on;
-    xlabel("x [m]"); ylabel("y [m]");
-    title("crankshaft in 2D (position of masses)");
-    daspect([1 1 1]);
-    cb = colorbar;
-    set(get(cb,"Label"),"string","velocity [m/s]");
-    
+    f = figure;
+    for ii = 1:NN
+        fig_2D{ii} = subplot(NN,1,ii,'Parent',f); hold on; grid on;
+        xlabel("x [m]"); ylabel("y [m]");
+        title("crankshaft in 2D (position of masses) " + results{ii}.task_info.name );
+        daspect([1 1 1]);
+        cb = colorbar;
+        set(get(cb,"Label"),"string","velocity [m/s]");
+    end
     % angles and angle speeds over time
-    figure; 
+    figure("Position",[680,325,563,653]); 
     fig_a1 = subplot(2,1,1); hold on; grid on;
+    set(fig_a1,"outerposition",[0 0.65 1 0.35]);
     xlabel("t [s]"); ylabel("angles [rad]"); title("angles");
-    legend
     fig_a2 = subplot(2,1,2); hold on; grid on;
+    set(fig_a2,"outerposition",[0 0.0 1 0.65]);
     xlabel("t [s]"); ylabel("angle velocities [rad/s]"); title("angle velocities")
-    legend;
-     % errors
-    figure; 
-    fig_e1 = subplot(2,1,1); hold on; grid on;
-    xlabel("t [s]"); ylabel("c(t)");
-    title("constraint discrepancy - position");
-    legend;
-    fig_e2 = subplot(2,1,2); hold on; grid on;
-    xlabel("t [s]"); ylabel("dc(t)/dt");
-    title("constraint discrepancy - velocity");
-    legend;
-    for ii = 1:length(results)
+    legend('Location', 'southoutside' );
+     
+    % errors
+     figure("Position",[680,325,563,653]);  
+    for ii = 1:NN
+        fig_e1{ii} = subplot(NN,2,2*ii-1); hold on; grid on;
+    %     set(fig_e1, 'YScale', 'log');
+        ylabel({results{ii}.task_info.name,"c(t)"});
+        if(ii == 1)
+            title("Position" );
+        end
+        if(ii == NN)
+            xlabel("t [s]");
+        end
+%         legend('Location', 'bestoutside' );   
+
+        fig_e2{ii} = subplot(NN,2,2*ii); hold on; grid on;
+        xlabel("t [s]"); ylabel("dc(t)/dt");
+        
+        if(ii == 1)
+            title("Velocity" );
+        end
+        if(ii == NN)
+            xlabel("t [s]");
+        end
+%         legend('Location', 'bestoutside' );
+    end
+    try
+        suptitle('Constraint Discrepancy')
+    catch
+    end
+    for ii = 1:NN
        try
             % position of masses
             r1_ = r1(results{ii}.y);
@@ -58,19 +82,19 @@ function vis_results(cs,results,varargin)
             v2_ = v2([results{ii}.y,results{ii}.Dy]);
             
             % errors of constraints
-            plot(fig_e1,cs.sym.tspan,results{ii}.c,'DisplayName',results{ii}.task_info.name,'Color',col(ii));
-            plot(fig_e2,cs.sym.tspan,results{ii}.Dc,'DisplayName',results{ii}.task_info.name,'Color',col(ii));
+            plot(fig_e1{ii},cs.sym.tspan,results{ii}.c,'DisplayName',results{ii}.task_info.name,'Color',cmap(ii,:),'Linewidth',lwidth);
+            plot(fig_e2{ii},cs.sym.tspan,results{ii}.Dc,'DisplayName',results{ii}.task_info.name,'Color',cmap(ii,:),'Linewidth',lwidth);
             
             % 2D positions
             t_step = 1;
-            scatter(fig_2D,r1_(1:t_step:end,1),r1_(1:t_step:end,2),[],v1_(1:t_step:end),'.','DisplayName',results{ii}.task_info.name);
-            scatter(fig_2D,r2_(1:t_step:end,1),r2_(1:t_step:end,2),[],v2_(1:t_step:end),'.','DisplayName',results{ii}.task_info.name);
+            scatter(fig_2D{ii},r1_(1:t_step:end,1),r1_(1:t_step:end,2),[],v1_(1:t_step:end),'.','DisplayName',results{ii}.task_info.name);
+            scatter(fig_2D{ii},r2_(1:t_step:end,1),r2_(1:t_step:end,2),[],v2_(1:t_step:end),'.','DisplayName',results{ii}.task_info.name);
             
             % angles and angle speeds over time           
-            plot(fig_a1,cs.sym.tspan,results{ii}.y(:,1),'-','DisplayName',"\alpha - " + results{ii}.task_info.name,'Color',col(ii));
-            plot(fig_a1,cs.sym.tspan,results{ii}.y(:,2),'--','DisplayName',"\beta - " + results{ii}.task_info.name,'Color',col(ii));
-            plot(fig_a2,cs.sym.tspan,results{ii}.Dy(:,1),'-','DisplayName',"d\alpha /dt - " + results{ii}.task_info.name,'Color',col(ii));
-            plot(fig_a2,cs.sym.tspan,results{ii}.Dy(:,2),'--','DisplayName',"d\beta /dt - " + results{ii}.task_info.name,'Color',col(ii));
+            plot(fig_a1,cs.sym.tspan,results{ii}.y(:,1),'-','DisplayName',"\alpha - " + results{ii}.task_info.name,'Color',cmap(ii,:),'Linewidth',lwidth);
+            plot(fig_a1,cs.sym.tspan,results{ii}.y(:,2),'--','DisplayName',"\beta - " + results{ii}.task_info.name,'Color',cmap(ii,:),'Linewidth',lwidth);
+            plot(fig_a2,cs.sym.tspan,results{ii}.Dy(:,1),'-','DisplayName',"\alpha and d\alpha /dt - " + results{ii}.task_info.name,'Color',cmap(ii,:),'Linewidth',lwidth);
+            plot(fig_a2,cs.sym.tspan,results{ii}.Dy(:,2),'--','DisplayName',"\beta and d\beta /dt - " + results{ii}.task_info.name,'Color',cmap(ii,:),'Linewidth',lwidth);
             
             %% animate 2D
             if ANIMATE

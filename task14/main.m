@@ -18,6 +18,8 @@ ANIMATE = 0; % (0/1) 1: animate, 0: not
 % add paths
 addpath("subtasks");
 addpath("visualization");
+addpath("solver");
+
 %%
 % load system
 syms alpha beta Dalpha Dbeta real
@@ -32,9 +34,9 @@ cs = crankshaft(alpha,beta,Dalpha,Dbeta);
 % -- subtask f: simulation via coordinate partitioning by QR decomposition
 
 subtasks = { 
-%             @(cs) subtask_d(cs);
-%             @(cs) subtask_e1(cs);
-%             @(cs) subtask_e2(cs);
+            @(cs) subtask_d(cs);
+            @(cs) subtask_e1(cs);
+            @(cs) subtask_e2(cs);
             @(cs) subtask_f(cs);
 %             @(cs) subtask_i(cs);
             };

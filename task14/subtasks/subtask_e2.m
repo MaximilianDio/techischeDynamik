@@ -2,7 +2,7 @@ function [y, Dy, c, Dc, task_info] = subtask_e2(cs)
 %%  subtask e2: simulation via manual coordinate partitioning by integration
     
     %% Task information
-    task_info.name = "subtask e2";
+    task_info.name = "MP - Integration";
     %%
     N = length(cs.sym.tspan);
     
@@ -51,6 +51,9 @@ function [y, Dy, c, Dc, task_info] = subtask_e2(cs)
     DDyb = matlabFunction([Dyu; 
                            -(Ca\Cu)*Dyu;     
                            M_hat\(q_hat-k_hat);0],'vars',{[yu;ya;Dyu;Dya]});
+                       
+    %% solver options
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8);
     
     %% iteration process - numerical solution of ODE
     for ii = 1:N
@@ -61,7 +64,7 @@ function [y, Dy, c, Dc, task_info] = subtask_e2(cs)
         end
         
         if ii+1 <= N
-            [~,x] = ode45(@(t,x) DDyb(x),cs.sym.tspan(ii:ii+1),[y(ii,:), Dy(ii,:)]');
+            [~,x] = ode45(@(t,x) DDyb(x),cs.sym.tspan(ii:ii+1),[y(ii,:), Dy(ii,:)]',options);
 
             y(ii+1,:) = x(end,1:2);
             Dy(ii+1,1) = x(end,3);

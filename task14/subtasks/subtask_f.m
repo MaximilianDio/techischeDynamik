@@ -1,11 +1,12 @@
 function [y, Dy, c, Dc, task_info] = subtask_f(cs)
 %%  subtask e2: simulation via manual coordinate partitioning by integration
-    
+    tspan = cs.sym.tspan;
+%     tspan = cs.sym.tspan(1):0.0005:cs.sym.tspan(end);
     %% Task information
-    task_info.name = "subtask f";
+    task_info.name = "QR-Decomposition";
     
     %% preprcessing
-    N = length(cs.sym.tspan);
+    N = length(tspan);
     
     % pre-allocate vectors
     y = zeros(N,2);
@@ -28,7 +29,8 @@ function [y, Dy, c, Dc, task_info] = subtask_f(cs)
     kb = matlabFunction(cs.dyn.kb,'vars',{[cs.dyn.yb;cs.dyn.Dyb]});
     qb = matlabFunction(cs.dyn.qb,'vars',{[cs.dyn.yb;cs.dyn.Dyb]});
     
-
+    %% solver options
+    options = odeset('RelTol',1e-8,'AbsTol',1e-8);
     
     for ii = 1:N
         %% partitioning of dependent and independent coordiantes via QR
@@ -40,28 +42,26 @@ function [y, Dy, c, Dc, task_info] = subtask_f(cs)
         R1 = R(1:size(R,2),:);
         % C' = Q1*R1 
         Q1 = Q(:,1:size(R,2));
-        % J_ = Q2 ( projection matrix from yb to valid movement of bunded system)
-        J_ = Q(:,size(R,2)+1:end);
+        % J_ = Q2 ( projection matrix from yb to valid free movement of bunded system)
+        Q2 = Q(:,size(R,2)+1:end);
         
         %% build other necessary matrices
         beta = @(x) 0 ;% (no rehonom bonds)
-        gamma = @(x) -Q1*(R1'\ctt(x));
+        gamma = @(x) -Q1*((R1')\ctt(x));
         
         %% create ODE
-        M_hat = @(x) J_'*Mb(x)*J_;
-        k_hat = @(x) J_'*(Mb(x)*gamma(x)+kb(x));
-        q_hat = @(x) J_'*qb(x);
+        M_hat = @(x) Q2'*Mb(x)*Q2;
+        k_hat = @(x) Q2'*(Mb(x)*gamma(x)+kb(x));
+        q_hat = @(x) Q2'*qb(x);
         
-        Dyb = @(x) J_*J_'*[x(1);x(2)] + beta(x);
-        DDyb = @(x) J_*(M_hat(x)\(q_hat(x)-k_hat(x)))+gamma(x);
+        Dyb = @(x) Q2*Q2'*[x(3);x(4)] + beta(x);
+        DDyb = @(x) Q2*((M_hat(x))\(q_hat(x)-k_hat(x)))+gamma(x);
         
         DDx = @(x) [Dyb(x) ;DDyb(x)];
         
         %% solve ODE
         if ii+1 <= N
-%             h = cs.sym.tspan(ii+1)-cs.sym.tspan(ii);
-%             x = ([y(ii,:), Dy(ii,:)]' + h*1/2*DDx([y(ii,:), Dy(ii,:)]'+h/2*DDx([y(ii,:), Dy(ii,:)]')))';
-            [~,x] = ode45(@(t,x) DDx(x),cs.sym.tspan(ii:ii+1),[y(ii,:), Dy(ii,:)]');
+            [~,x] = ode15s(@(t,x) DDx(x),tspan(ii:ii+1),[y(ii,:), Dy(ii,:)]',options);
 
             y(ii+1,:) = x(end,1:2);
             Dy(ii+1,:) = x(end,3:4);
@@ -71,6 +71,11 @@ function [y, Dy, c, Dc, task_info] = subtask_f(cs)
         c(ii,1) = c_f(y(ii,:)');
         Dc(ii,1) = Dc_f([y(ii,:),Dy(ii,:)]');
     end
+    
+    y = interp1(tspan,y,cs.sym.tspan);
+    Dy = interp1(tspan,Dy,cs.sym.tspan);
+    c = interp1(tspan,c,cs.sym.tspan);
+    Dc = interp1(tspan,Dc,cs.sym.tspan);
     
     
 
