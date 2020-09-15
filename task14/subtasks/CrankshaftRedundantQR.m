@@ -37,15 +37,19 @@ classdef CrankshaftRedundantQR < CrankshaftRedundant
             %% solve as ODE
             [t,x] = ode45(@(t,x) obj.func(t,x,C,ct,ctt,M,qc,qe),tspan,x0,options);
             
-            %% extract data from state
-            y = x(:,1:e);
-            Dy = x(:,e+1:2*e);
-            
-            
             %%
             disp(obj.name + " claculation time: " + string(toc));
+            %% extract data from state
+            Dx = zeros(size(x));
+            for ii = 1:length(t)
+                Dx(ii,:) = obj.func(t,x(ii,:)',C,ct,ctt,M,qc,qe)';
+            end
             
-            results = obj.validate(t,y,Dy);
+            y = x(:,1:e);
+            Dy = x(:,e+1:2*e);           
+            DDy = Dx(:,e+1:2*e);
+            
+            results = obj.validate(t,y,Dy,DDy);
         end
         function Dy = func(obj,t,y,C,ct,ctt,M,qc,qe)
             % QR decomposition

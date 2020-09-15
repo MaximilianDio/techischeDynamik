@@ -1,9 +1,10 @@
-classdef CrankshaftRedundant < CrankshaftClass
+classdef CrankshaftRedundant < Crankshaft
     
     properties
         % coordinates in tree structure
         xI; 
         xII;
+        DxII;
         
         % initial condition
         xI0;
@@ -23,15 +24,17 @@ classdef CrankshaftRedundant < CrankshaftClass
     
     methods
         function obj = CrankshaftRedundant(alpha0,Dalpha0)
-            obj@CrankshaftClass(alpha0,Dalpha0);
+            obj@Crankshaft(alpha0,Dalpha0);
             
-            syms x1 y1 z1 Dx1 Dy1 Dy1 Dz1 x2 y2 z2 Dx2 Dy2 Dy2 Dz2 real
+            syms x1 y1 z1 Dx1 Dy1 Dz1 DDx1 DDy1 DDz1 x2 y2 z2 Dx2 Dy2 Dz2 DDx2 DDy2 DDz2 real
  
             xI = [x1; y1; z1; x2; y2; z2];
             xII = [Dx1; Dy1; Dz1; Dx2; Dy2; Dz2];
+            DxII = [DDx1; DDy1; DDz1; DDx2; DDy2; DDz2];
             
             obj.xI = xI;
             obj.xII = xII;
+            obj.DxII = DxII;
             
             p = 2;
             ei = 3; 
@@ -68,7 +71,6 @@ classdef CrankshaftRedundant < CrankshaftClass
                 (y2-y1)^2+(z2-z1)^2-obj.l2^2;
                 z2];
             obj.bc.C = jacobian(obj.bc.c,xI);
-            obj.bc.Dc = obj.bc.C*xI; 
 
             obj.bc.ct = zeros(obj.q,1);
             obj.bc.ctt = [0, 0, 0, 0, 0, 0;
@@ -76,6 +78,9 @@ classdef CrankshaftRedundant < CrankshaftClass
                    0, 0, 0, 0, 0, 0;
                    0, 2*Dy1-2*Dy2, 2*Dz1-2*Dz2, 0, 2*Dy2-2*Dy1, 2*Dz2-2*Dz1;
                    0, 0, 0, 0, 0, 0]*xII;
+               
+            obj.bc.Dc = obj.bc.C*xII; 
+            obj.bc.DDc = obj.bc.C*DxII + obj.bc.ctt;
             
             
                        
@@ -87,6 +92,10 @@ classdef CrankshaftRedundant < CrankshaftClass
         function [xII_1, xII_2] = velocity(obj,y,Dy)
             xII_1 = Dy(:,2:3);
             xII_2 = Dy(:,5:6);
+        end
+        function [DxII_1, DxII_2] = acceleration(obj,y,Dy,DDy)
+            DxII_1 = DDy(:,2:3);
+            DxII_2 = DDy(:,5:6);
         end
         function [alpha,beta] = angles(obj,y)
             alpha = wrapToPi(atan2(y(:,3),y(:,2))+pi/2)-pi/2;
@@ -101,29 +110,36 @@ classdef CrankshaftRedundant < CrankshaftClass
         
     end
     methods (Access = protected)
-        function results = validate(obj,t,y,Dy)
+        function results = validate(obj,t,y,Dy,DDy)
             results.info.name = obj.name;
             results.info.type = "redundant";
             % 
             results.t = t;
             results.y = y;
             results.Dy = Dy;
+            results.DDy = DDy;
             
+            %% calculate discrapency to bc
             % validate boundary conditions
             c_f = matlabFunction(obj.bc.c,'vars',{[obj.xI;obj.xII]});
             Dc_f = matlabFunction(obj.bc.Dc,'vars',{[obj.xI;obj.xII]});
+            DDc_f = matlabFunction(obj.bc.DDc,'vars',{[obj.xI;obj.xII;obj.DxII]});
             
             T = length(t);
             
             c = zeros(T,length(obj.bc.c));
             Dc = zeros(T,length(obj.bc.Dc));
+            DDc = zeros(T,length(obj.bc.Dc));
             for ii = 1:T        
                 c(ii,:) = c_f([y(ii,:),Dy(ii,:)]');
                 Dc(ii,:) = Dc_f([y(ii,:),Dy(ii,:)]');
+                DDc(ii,:) = DDc_f([y(ii,:),Dy(ii,:),DDy(ii,:)]');
             end
             
-            results.c = c;
-            results.Dc = Dc;
+            % do not take the bc that hold system in plane
+            results.c = [c(:,2),c(:,4),c(:,5)];
+            results.Dc = [Dc(:,2),Dc(:,4),Dc(:,5)];
+            results.DDc = [DDc(:,2),DDc(:,4),DDc(:,5)];
         end
     end
 end

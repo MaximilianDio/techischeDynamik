@@ -41,16 +41,21 @@ classdef CrankshaftRedundantDAE < CrankshaftRedundant
             options = odeset("Mass",M_,"RelTol",obj.relTol,"AbsTol",obj.absTol);            
             
             [t,x] = ode15s(f,tspan,x0,options);
-            
-            %% extract data from state
-            y = x(:,1:e);
-            Dy = x(:,e+1:2*e);
-       
-            
             %%
             disp(obj.name + " claculation time: " + string(toc));
             
-            results = obj.validate(t,y,Dy);
+            %% extract data from state
+            Dx = zeros(size(x));
+            for ii = 1:length(t)
+                Dx(ii,:) = f(t(ii),x(ii,:)')';
+            end
+            
+            y = x(:,1:e);
+            Dy = x(:,e+1:2*e);
+            Dyy = Dx(:,e+1:2*e);
+       
+            % process 
+            results = obj.validate(t,y,Dy,Dyy);
         end
     end
     

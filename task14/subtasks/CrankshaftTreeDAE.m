@@ -37,14 +37,17 @@ classdef CrankshaftTreeDAE < CrankshaftTree
             %% solve as DAE
             [t,x] = ode15s(f,tspan,x0,options);
             
+            Dx = f(t,x')';
+            
             %% extract data from state
             y = x(:,1:2);
             Dy = x(:,3:4);
+            DDy = Dx(:,3:4);
             
             %%
             disp(obj.name + " claculation time: " + string(toc));
             
-            results = obj.validate(t,y,Dy);
+            results = obj.validate(t,y,Dy,DDy);
         end
         
     end

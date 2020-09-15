@@ -30,16 +30,21 @@ classdef CrankshaftTreeQR < CrankshaftTree
             %% solve as ODE
             [t,x] = ode45(@(t,x) obj.func(t,x,C,ct,ctt,M,k,q),tspan,x0,options);
             
+            Dx = zeros(size(x));
+            for ii = 1:length(t)
+                Dx(ii,:) = obj.func(t(ii),x(ii,:)',C,ct,ctt,M,k,q)';
+            end
             %% extract data from state
             
             % recalculate the dependent coordinates (pain in the ass but better than solving ODE in loop!)
             y =     x(:,1:2);
             Dy =    x(:,3:4);
+            DDy =   Dx(:,3:4);
             
             %% 
             disp(obj.name + " claculation time: " + string(toc));
             
-            results = obj.validate(t,y,Dy);
+            results = obj.validate(t,y,Dy,DDy);
         end
         function f = func(obj,t,x,C,ct,ctt,M,k,q)
             %% partitioning of dependent and independent coordiantes via QR

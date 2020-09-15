@@ -1,22 +1,8 @@
-classdef CrankshaftClass
+classdef Crankshaft<handle
     %CRANKSHAFTCLASS Summary of this class goes here
     %   Detailed explanation goes here
     
-    properties
-       	% point masses
-        m1 = .1;        %kg
-        m2 =  1.0;      %kg
-        % rod lengths
-        l1 = 0.3;       %m
-        l2 = 1;         %m
-        % gravitational constant
-        g = 9.81;       % m/s^2
-    
-        % simulation
-        relTol = 1e-3;
-        absTol = 1e-3;
-        tStep = 0.02;
-        
+    properties        
         % initial conditions
         alpha0;         %rad
         beta0; 
@@ -26,12 +12,27 @@ classdef CrankshaftClass
         %boundary conditions
         bc;
     end
+    properties (Constant)
+       % point masses
+        m1 = .1;        %kg
+        m2 =  1.0;      %kg
+        % rod lengths
+        l1 = 0.3;       %m
+        l2 = 1;         %m
+        % gravitational constant
+        g = 9.81;       % m/s^2
+    
+        % simulation
+        relTol = 1e-4;
+        absTol = 1e-4;
+        tStep = 0.01; 
+    end
     properties (Abstract)
         name;
     end
     
     methods 
-        function obj = CrankshaftClass(alpha0,Dalpha0)
+        function obj = Crankshaft(alpha0,Dalpha0)
             obj.alpha0 = alpha0;
             obj.Dalpha0 = Dalpha0;
             
@@ -54,6 +55,7 @@ classdef CrankshaftClass
         results = solve(obj,tEnd);
         [xI_1, xI_2] = position(obj,y);
         [xII_1, xII_2] = velocity(obj,y,Dy);
+        [DxII_1, DxII_2] = acceleration(obj,y,Dy);
         [alpha,beta] = angles(obj,y);
         [Dalpha,Dbeta] = angleVelocities(obj,Dy);
     end

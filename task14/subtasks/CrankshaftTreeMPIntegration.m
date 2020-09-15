@@ -52,16 +52,20 @@ classdef CrankshaftTreeMPIntegration < CrankshaftTree
             %% solve as ODE
             [t,x] = ode45(@(t,x) obj.func(t,x,DDy,Cid_,Cd_,qc),tspan,x0,options);
             
+            Dx = zeros(size(x));
+            for ii = 1:length(t)
+                Dx(ii,:) = obj.func(t(ii),x(ii,:)',DDy,Cid_,Cd_,qc)';
+            end
             %% extract data from state
-            
+            ctt = matlabFunction(obj.bc.ctt,'vars',{[obj.y;obj.Dy]});
             % recalculate the dependent coordinates (pain in the ass but better than solving ODE in loop!)
             y =    x(:,1:2);
             Dy =   [x(:,3), -(Cid_(y'))'./(Cd_(y'))'.*x(:,3)];
-            
+            DDy =   [Dx(:,3), -(Cid_(y'))'./(Cd_(y'))'.*Dx(:,3) - ctt([y';Dy'])'./(Cd_(y'))'];
             %%
             disp(obj.name + " claculation time: " + string(toc));
             
-            results = obj.validate(t,y,Dy);
+            results = obj.validate(t,y,Dy,DDy);
         end
         function f = func(obj,t,x,DDy,Cid,Cd,qc)
             % x = [y;Dy];

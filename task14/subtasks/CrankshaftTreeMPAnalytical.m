@@ -49,16 +49,20 @@ classdef CrankshaftTreeMPAnalytical < CrankshaftTree
             %% solve as ODE
             [t,x] = ode45(@(t,x) obj.func(t,x,DDyid,Cid_,Cd_,qc),tspan,x0,options);
             
+            Dx = zeros(size(x));
+            for ii = 1:length(t)
+                Dx(ii,:) = obj.func(t(ii),x(ii,:)',DDyid,Cid_,Cd_,qc)';
+            end
             %% extract data from state
-            
+            ctt = matlabFunction(obj.bc.ctt,'vars',{[obj.y;obj.Dy]});
             % recalculate the dependent coordinates (pain in the ass but better than solving ODE in loop!)
             y =     [x(:,1), asin(sin(x(:,1))*obj.l1/obj.l2)];
             Dy =    [x(:,2), -(Cid_(y'))'./(Cd_(y'))'.*x(:,2)];
-            
+            DDy =   [Dx(:,2), -(Cid_(y'))'./(Cd_(y'))'.*Dx(:,2) - ctt([y';Dy'])'./(Cd_(y'))'];
             %%
             disp(obj.name + " claculation time: " + string(toc));
             
-            results = obj.validate(t,y,Dy);
+            results = obj.validate(t,y,Dy,DDy);
         end
         function f = func(obj,t,x,DDyi,Cid,Cd,qc)
             % x = [y;Dy];
