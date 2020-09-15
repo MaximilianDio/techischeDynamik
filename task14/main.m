@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author:   Maximilian Dio - 21595892 - 
 % Date:     13.08.2020
-% Notes:    change parameters of crankshaft in crankshaft.m
+% Notes:    change parameters of crankshaft in Crankshaft class
 %           To animate the results set the ANIMATE flag true
             
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -20,11 +20,6 @@ addpath("subtasks");
 addpath("visualization");
 addpath("solver");
 
-%%
-% load system
-syms alpha beta Dalpha Dbeta real
-cs = crankshaft(alpha,beta,Dalpha,Dbeta);
-
 %% Simulation - run subtasks
 
 % -- subtask d: simulation as DAE system
@@ -33,23 +28,25 @@ cs = crankshaft(alpha,beta,Dalpha,Dbeta);
 % -- subtask e2: simulation via manual coordinate partitioning by integration
 % -- subtask f: simulation via coordinate partitioning by QR decomposition
 
-subtasks = { 
-            @(cs) subtask_d(cs);
-            @(cs) subtask_e1(cs);
-            @(cs) subtask_e2(cs);
-            @(cs) subtask_f(cs);
-%             @(cs) subtask_i(cs);
+alpha0 = 0.1;
+Dalpha0 = 0.1;
+
+Tend = 4;
+
+crankshafts = { 
+            CrankshaftTreeDAE(alpha0,Dalpha0);
+            CrankshaftTreeMPAnalytical(alpha0,Dalpha0);
+            CrankshaftTreeMPIntegration(alpha0,Dalpha0);
+            CrankshaftTreeQR(alpha0,Dalpha0);
+            CrankshaftRedundantDAE(alpha0,Dalpha0);
+            CrankshaftRedundantQR(alpha0,Dalpha0);
             };
 
-results = cell(size(subtasks));
-for ii = 1:length(subtasks)
-%     try
-    [results{ii}.y, results{ii}.Dy, results{ii}.c, results{ii}.Dc ,results{ii}.task_info] = subtasks{ii}(cs);
-%     catch
-%     warning
-%     end
+results = cell(size(crankshafts));
+for ii = 1:length(crankshafts)
+    results{ii} = crankshafts{ii}.solve(Tend);
 end
 
 %% visualize results
 close all;
-vis_results(cs,results,'animate',ANIMATE);
+vis_results(crankshafts,results,'animate',ANIMATE);

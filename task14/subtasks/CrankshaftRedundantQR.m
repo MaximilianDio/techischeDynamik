@@ -1,7 +1,7 @@
 classdef CrankshaftRedundantQR < CrankshaftRedundant
     
     properties 
-        name = "DAE - RC";
+        name = "QR - RC";
     end
     
     methods
@@ -13,7 +13,7 @@ classdef CrankshaftRedundantQR < CrankshaftRedundant
         function results = solve(obj,tEnd)
             tic 
             
-            tspan = 0:0.01:tEnd;
+            tspan = 0:obj.tStep:tEnd;
             
             e = obj.e;
             q = obj.q;

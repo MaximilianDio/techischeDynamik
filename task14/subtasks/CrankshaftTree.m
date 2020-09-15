@@ -69,6 +69,7 @@ classdef CrankshaftTree < CrankshaftClass
     methods (Access = protected)
         function results = validate(obj,t,y,Dy)
             results.info.name = obj.name;
+            results.info.type = "tree";
             % 
             results.t = t;
             results.y = y;

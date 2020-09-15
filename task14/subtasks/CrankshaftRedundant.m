@@ -103,6 +103,7 @@ classdef CrankshaftRedundant < CrankshaftClass
     methods (Access = protected)
         function results = validate(obj,t,y,Dy)
             results.info.name = obj.name;
+            results.info.type = "redundant";
             % 
             results.t = t;
             results.y = y;
