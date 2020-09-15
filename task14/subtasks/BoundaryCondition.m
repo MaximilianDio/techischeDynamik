@@ -1,6 +1,14 @@
+%% Boundary condition: 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Author:   Maximilian Dio - 21595892 - 
+% Date:     15.09.2020
+% Notes:    create derivatives, jacobian ct and ctt for implict boundary
+% conditions
+            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 classdef BoundaryCondition
-    %BOUNDARYCONDITION Summary of this class goes here
-    %   Detailed explanation goes here
     
     properties
         c

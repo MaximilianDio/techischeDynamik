@@ -1,7 +1,7 @@
-%% MAIN - Task 14
+%% MAIN: start here - Task 14
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Author:   Maximilian Dio - 21595892 - 
-% Date:     13.08.2020
+% Date:     15.09.2020
 % Notes:    To animate the results set the ANIMATE flag true parameters can
 % be changed in the Crankshaft class
             
@@ -21,7 +21,8 @@ addpath("subtasks");
 addpath("visualization");
 addpath("solver");
 
-%% Simulation - run subtasks
+%% RUN  
+% Simulation - run subtasks
 
 % -- subtask d: simulation as DAE system
 % -- subtask e1: simulation via manual coordinate partitioning by resolving
@@ -47,12 +48,14 @@ crankshafts = {
             };
 
 results = cell(size(crankshafts));
+
+% run simulation
 for ii = 1:length(crankshafts)
     results{ii} = crankshafts{ii}.solve(Tend);
 end
 
 relTol = Crankshaft.relTol;
 
-%% visualize results
+%% VISUALIZE
 close all;
 vis_results(crankshafts,results,'animate',ANIMATE,'save',SAVE,'text',string(Tend) + "-" + relTol);
