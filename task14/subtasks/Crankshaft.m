@@ -15,6 +15,11 @@ classdef Crankshaft<handle
         % solver has to be able to solve problem (e.g. DAE: ode15s or
         % ode23t
         solver;
+        
+         % simulation
+        relTol = 1e-6;
+        absTol = 1e-6;
+        tStep = 0.001; 
     end
     properties (Constant)
        % point masses
@@ -26,10 +31,7 @@ classdef Crankshaft<handle
         % gravitational constant
         g = 9.81;       % m/s^2
     
-        % simulation
-        relTol = 1e-6;
-        absTol = 1e-6;
-        tStep = 0.001; 
+       
     end
     properties (Abstract)
         name;
