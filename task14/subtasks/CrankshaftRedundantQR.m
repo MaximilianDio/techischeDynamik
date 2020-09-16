@@ -5,8 +5,8 @@ classdef CrankshaftRedundantQR < CrankshaftRedundant
     end
     
     methods
-        function obj = CrankshaftRedundantQR(alpha0,Dalpha0)
-            obj@CrankshaftRedundant(alpha0,Dalpha0);
+        function obj = CrankshaftRedundantQR(alpha0,Dalpha0,solver)
+            obj@CrankshaftRedundant(alpha0,Dalpha0,solver);
             
         end
         
@@ -35,7 +35,7 @@ classdef CrankshaftRedundantQR < CrankshaftRedundant
             x0 = [obj.xI0;obj.xII0];
             
             %% solve as ODE
-            [t,x] = ode45(@(t,x) obj.func(t,x,C,ct,ctt,M,qc,qe),tspan,x0,options);
+            [t,x] = obj.solver(@(t,x) obj.func(t,x,C,ct,ctt,M,qc,qe),tspan,x0,options);
             
             %%
             disp(obj.name + " claculation time: " + string(toc));

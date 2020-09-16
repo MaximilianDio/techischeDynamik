@@ -11,6 +11,10 @@ classdef Crankshaft<handle
         
         %boundary conditions
         bc;
+        
+        % solver has to be able to solve problem (e.g. DAE: ode15s or
+        % ode23t
+        solver;
     end
     properties (Constant)
        % point masses
@@ -23,16 +27,18 @@ classdef Crankshaft<handle
         g = 9.81;       % m/s^2
     
         % simulation
-        relTol = 1e-4;
-        absTol = 1e-4;
-        tStep = 0.01; 
+        relTol = 1e-6;
+        absTol = 1e-6;
+        tStep = 0.001; 
     end
     properties (Abstract)
         name;
     end
     
     methods 
-        function obj = Crankshaft(alpha0,Dalpha0)
+        function obj = Crankshaft(alpha0,Dalpha0,solver)
+            obj.solver = solver;
+            
             obj.alpha0 = alpha0;
             obj.Dalpha0 = Dalpha0;
             

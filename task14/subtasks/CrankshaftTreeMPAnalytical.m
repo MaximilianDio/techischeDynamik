@@ -5,8 +5,8 @@ classdef CrankshaftTreeMPAnalytical < CrankshaftTree
     end
     
     methods
-        function obj = CrankshaftTreeMPAnalytical(alpha0,Dalpha0)
-            obj@CrankshaftTree(alpha0,Dalpha0);
+        function obj = CrankshaftTreeMPAnalytical(alpha0,Dalpha0,solver)
+            obj@CrankshaftTree(alpha0,Dalpha0,solver);
         end    
     end
     methods 
@@ -47,7 +47,7 @@ classdef CrankshaftTreeMPAnalytical < CrankshaftTree
             x0 = [obj.y0(1);obj.Dy0(1)];
             
             %% solve as ODE
-            [t,x] = ode45(@(t,x) obj.func(t,x,DDyid,Cid_,Cd_,qc),tspan,x0,options);
+            [t,x] = obj.solver(@(t,x) obj.func(t,x,DDyid,Cid_,Cd_,qc),tspan,x0,options);
             
             Dx = zeros(size(x));
             for ii = 1:length(t)

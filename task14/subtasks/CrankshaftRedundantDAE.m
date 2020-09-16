@@ -5,8 +5,8 @@ classdef CrankshaftRedundantDAE < CrankshaftRedundant
     end
     
     methods
-        function obj = CrankshaftRedundantDAE(alpha0,Dalpha0)
-            obj@CrankshaftRedundant(alpha0,Dalpha0);
+        function obj = CrankshaftRedundantDAE(alpha0,Dalpha0,solver)
+            obj@CrankshaftRedundant(alpha0,Dalpha0,solver);
             
         end
         
@@ -40,7 +40,7 @@ classdef CrankshaftRedundantDAE < CrankshaftRedundant
             
             options = odeset("Mass",M_,"RelTol",obj.relTol,"AbsTol",obj.absTol);            
             
-            [t,x] = ode15s(f,tspan,x0,options);
+            [t,x] = obj.solver(f,tspan,x0,options);
             %%
             disp(obj.name + " claculation time: " + string(toc));
             

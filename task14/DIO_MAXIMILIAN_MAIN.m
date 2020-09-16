@@ -36,16 +36,21 @@ addpath("solver");
 alpha0 = 0.1;
 Dalpha0 = 0.1;
 
+% select integration time;
 Tend = 2;
 
+% choose solver 
+ode_solver = @ode45; % choose ode45, ode23 or ode113
+dae_solver = @ode15s; % choose ode15s or ode23t
+
 crankshafts = { 
-            CrankshaftTreeDAE(alpha0,Dalpha0);
-            CrankshaftTreeMPAnalytical(alpha0,Dalpha0);
-            CrankshaftTreeMPIntegration(alpha0,Dalpha0);
-            CrankshaftTreeQR(alpha0,Dalpha0);
-            CrankshaftRedundantDAE(alpha0,Dalpha0);
-            CrankshaftRedundantQR(alpha0,Dalpha0);
-            };
+            CrankshaftTreeDAE(alpha0,Dalpha0,dae_solver);
+            CrankshaftTreeMPAnalytical(alpha0,Dalpha0,ode_solver);
+            CrankshaftTreeMPIntegration(alpha0,Dalpha0,ode_solver);
+            CrankshaftTreeQR(alpha0,Dalpha0,ode_solver);
+            CrankshaftRedundantDAE(alpha0,Dalpha0,dae_solver);
+            CrankshaftRedundantQR(alpha0,Dalpha0,ode_solver);
+};
 
 results = cell(size(crankshafts));
 
@@ -58,4 +63,4 @@ relTol = Crankshaft.relTol;
 
 %% VISUALIZE
 close all;
-vis_results(crankshafts,results,'animate',ANIMATE,'save',SAVE,'text',string(Tend) + "-" + relTol);
+vis_results(crankshafts,results,'animate',ANIMATE,'save',SAVE,'text',string(Tend) + "-" + relTol );

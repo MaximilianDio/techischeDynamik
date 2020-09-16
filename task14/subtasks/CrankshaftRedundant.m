@@ -23,8 +23,8 @@ classdef CrankshaftRedundant < Crankshaft
     end
     
     methods
-        function obj = CrankshaftRedundant(alpha0,Dalpha0)
-            obj@Crankshaft(alpha0,Dalpha0);
+        function obj = CrankshaftRedundant(alpha0,Dalpha0,solver)
+            obj@Crankshaft(alpha0,Dalpha0,solver);
             
             syms x1 y1 z1 Dx1 Dy1 Dz1 DDx1 DDy1 DDz1 x2 y2 z2 Dx2 Dy2 Dz2 DDx2 DDy2 DDz2 real
  

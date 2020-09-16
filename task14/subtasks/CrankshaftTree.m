@@ -18,8 +18,8 @@ classdef CrankshaftTree < Crankshaft
     end
     
     methods
-        function obj = CrankshaftTree(alpha0,Dalpha0)
-            obj@Crankshaft(alpha0,Dalpha0);
+        function obj = CrankshaftTree(alpha0,Dalpha0,solver)
+            obj@Crankshaft(alpha0,Dalpha0,solver);
             
             y = sym('y',[2,1],'real');
             Dy = sym('Dy',[2,1],'real');

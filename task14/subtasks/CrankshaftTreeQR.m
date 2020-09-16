@@ -5,8 +5,8 @@ classdef CrankshaftTreeQR < CrankshaftTree
     end
     
     methods
-        function obj = CrankshaftTreeQR(alpha0,Dalpha0)
-            obj@CrankshaftTree(alpha0,Dalpha0);
+        function obj = CrankshaftTreeQR(alpha0,Dalpha0,solver)
+            obj@CrankshaftTree(alpha0,Dalpha0,solver);
         end    
     end
     methods 
@@ -28,7 +28,7 @@ classdef CrankshaftTreeQR < CrankshaftTree
             x0 = [obj.y0;obj.Dy0];
             
             %% solve as ODE
-            [t,x] = ode45(@(t,x) obj.func(t,x,C,ct,ctt,M,k,q),tspan,x0,options);
+            [t,x] = obj.solver(@(t,x) obj.func(t,x,C,ct,ctt,M,k,q),tspan,x0,options);
             
             Dx = zeros(size(x));
             for ii = 1:length(t)

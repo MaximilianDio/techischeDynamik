@@ -5,8 +5,8 @@ classdef CrankshaftTreeDAE < CrankshaftTree
     end
     
     methods
-        function obj = CrankshaftTreeDAE(alpha0,Dalpha0)
-            obj@CrankshaftTree(alpha0,Dalpha0);
+        function obj = CrankshaftTreeDAE(alpha0,Dalpha0,solver)
+            obj@CrankshaftTree(alpha0,Dalpha0,solver);
         end    
     end
     methods 
@@ -35,7 +35,7 @@ classdef CrankshaftTreeDAE < CrankshaftTree
             x0 = [obj.y0;obj.Dy0;lambda0];
             
             %% solve as DAE
-            [t,x] = ode15s(f,tspan,x0,options);
+            [t,x] = obj.solver(f,tspan,x0,options);
             
             Dx = f(t,x')';
             
