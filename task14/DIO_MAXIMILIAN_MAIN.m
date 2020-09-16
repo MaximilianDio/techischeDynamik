@@ -12,8 +12,8 @@
 clear; clc;
 
 %% FLAGS
-ANIMATE = 1; % (0/1) 1: animate, 0: not
-SAVE = 0;
+ANIMATE = 0; % (0/1) 1: animate, 0: not
+SAVE = 0; % (0/1) 1: save plots in figures folder, 0: not
 
 %% PATHS
 % add paths
